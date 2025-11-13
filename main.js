@@ -84,7 +84,7 @@ function createContextMenu() {
     });
     
     // Format: [FY] Academic Study
-    const classLine = `[${classDetails.level}] ${classDetails.className}`;
+    const classLine = `[${classDetails.year}] ${classDetails.className}`;
     menuTemplate.push({
       label: classLine,
       type: 'normal',

@@ -221,7 +221,7 @@ class ScheduleManager {
     return {
       blockName: currentClass.blockName,
       className: currentClass.className,
-      level: currentClass.level,
+      year: currentClass.year,
       room: currentClass.room,
       startTime: currentClass.startTime,
       endTime: currentClass.endTime,
