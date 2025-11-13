@@ -55,40 +55,54 @@ function updateTrayDisplay() {
 function createContextMenu() {
   const classDetails = scheduleManager.getCurrentClassDetails();
   
-  const menuTemplate = [
-    {
-      label: classDetails ? 'Current Class' : 'No Class',
-      type: 'normal',
-      enabled: false
-    }
-  ];
+  const menuTemplate = [];
 
   if (classDetails) {
-    menuTemplate.push({ type: 'separator' });
+    // Format duration as H:MM
+    const hours = Math.floor(classDetails.duration / 60);
+    const minutes = classDetails.duration % 60;
+    const durationStr = hours > 0 ? `${hours}:${String(minutes).padStart(2, '0')}` : `${minutes}`;
+    
+    // Format: A1 (1:05)
+    const blockDuration = `${classDetails.blockName} (${durationStr})`;
     menuTemplate.push({
-      label: `Block: ${classDetails.blockName}`,
+      label: blockDuration,
       type: 'normal',
-      enabled: false
+      enabled: true
     });
+    
+    // Convert times to 12-hour format with AM/PM
+    const startTime12 = scheduleManager.formatTo12Hour(classDetails.startTime);
+    const endTime12 = scheduleManager.formatTo12Hour(classDetails.endTime);
+    
+    // Format: 11:40 AM-1:30 PM
+    const timeRange = `${startTime12}-${endTime12}`;
     menuTemplate.push({
-      label: `Class: ${classDetails.className}`,
+      label: timeRange,
       type: 'normal',
-      enabled: false
+      enabled: true
     });
+    
+    // Format: [FY] Academic Study
+    const classLine = `[${classDetails.level}] ${classDetails.className}`;
     menuTemplate.push({
-      label: `Room: ${classDetails.room}`,
+      label: classLine,
       type: 'normal',
-      enabled: false
+      enabled: true
     });
+    
+    // Format: Titus, Kristin - 2209
+    const teacherRoom = `${classDetails.teacher.last}, ${classDetails.teacher.first} - ${classDetails.room}`;
     menuTemplate.push({
-      label: `Teacher: ${classDetails.teacher}`,
+      label: teacherRoom,
       type: 'normal',
-      enabled: false
+      enabled: true
     });
+  } else {
     menuTemplate.push({
-      label: `Ends: ${classDetails.endTime}`,
+      label: 'No Class',
       type: 'normal',
-      enabled: false
+      enabled: true
     });
   }
 

@@ -214,13 +214,22 @@ class ScheduleManager {
     const currentClass = this.getCurrentClass(dateTime);
     if (!currentClass) return null;
 
+    const startMinutes = this.timeToMinutes(currentClass.startTime);
+    const endMinutes = this.timeToMinutes(currentClass.endTime);
+    const duration = endMinutes - startMinutes;
+
     return {
       blockName: currentClass.blockName,
       className: currentClass.className,
       level: currentClass.level,
       room: currentClass.room,
-      teacher: `${currentClass.teacher.first} ${currentClass.teacher.last}`,
-      endTime: this.formatTo12Hour(currentClass.endTime),
+      startTime: currentClass.startTime,
+      endTime: currentClass.endTime,
+      duration: duration,
+      teacher: {
+        first: currentClass.teacher.first,
+        last: currentClass.teacher.last
+      },
       timeRemaining: this.getTimeRemainingInClass(dateTime)
     };
   }
