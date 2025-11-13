@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+    />
+    <title>Class Schedule</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #2d3748;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .subtitle {
+        margin: 8px 0 0 0;
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      .content {
+        padding: 30px 20px;
+      }
+
+      #scheduleContainer {
+        min-height: 200px;
+      }
+
+      .schedule-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      .schedule-table thead {
+        background: #f7fafc;
+        border-bottom: 2px solid #e2e8f0;
+      }
+
+      .schedule-table th {
+        padding: 12px;
+        text-align: left;
+        font-weight: 700;
+        color: #2d3748;
+        font-size: 14px;
+      }
+
+      .schedule-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 14px;
+      }
+
+      .schedule-table tbody tr:hover {
+        background: #f7fafc;
+      }
+
+      p {
+        text-align: center;
+        color: #718096;
+        font-size: 16px;
+      }
+
+      .info-box {
+        background: #edf2f7;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 20px;
+        font-size: 13px;
+        color: #2d3748;
+      }
+
+      .info-box strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #667eea;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>📚 Class Schedule</h1>
+        <p class="subtitle">Today's Schedule - Click tray icon to see current class</p>
+      </div>
+
+      <div class="content">
+        <div id="scheduleContainer">
+          <p>Loading schedule...</p>
+        </div>
+
+        <div class="info-box">
+          <strong>💡 How it works:</strong>
+          The tray icon (top-right menu bar) displays the time remaining in your current class or the countdown to the next class. Click the icon to see full details of your current class including the teacher, room, and end time.
+        </div>
+      </div>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
