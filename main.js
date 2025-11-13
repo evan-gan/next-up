@@ -39,56 +39,7 @@ function createWindow() {
 }
 
 /**
- * Creates a simple monochrome tray icon for macOS
- * @returns {NativeImage} Tray icon image
- */
-function createTrayIcon() {
-  const size = 16;
-  const buffer = Buffer.alloc(size * size * 4); // RGBA
-  
-  // Create a simple clock-like icon
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const idx = (y * size + x) * 4;
-      
-      // Circle outline (clock face)
-      const dx = x - size / 2;
-      const dy = y - size / 2;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      if (distance > 5 && distance < 6.5) {
-        buffer[idx] = 0;
-        buffer[idx + 1] = 0;
-        buffer[idx + 2] = 0;
-        buffer[idx + 3] = 255;
-      }
-      // Hour hand
-      else if (x === 8 && y >= 7 && y <= 9) {
-        buffer[idx] = 0;
-        buffer[idx + 1] = 0;
-        buffer[idx + 2] = 0;
-        buffer[idx + 3] = 255;
-      }
-      // Minute hand
-      else if (x >= 7 && x <= 9 && y === 5) {
-        buffer[idx] = 0;
-        buffer[idx + 1] = 0;
-        buffer[idx + 2] = 0;
-        buffer[idx + 3] = 255;
-      }
-      else {
-        buffer[idx + 3] = 0; // Transparent
-      }
-    }
-  }
-  
-  const image = nativeImage.createFromBuffer(buffer, { width: size, height: size });
-  image.setTemplateImage(true); // Adapts to dark/light mode on macOS
-  return image;
-}
-
-/**
- * Updates the tray icon with current time display
+ * Updates the tray text display
  */
 function updateTrayDisplay() {
   if (!tray || !scheduleManager) return;
@@ -158,7 +109,9 @@ function createContextMenu() {
  * Creates and configures the system tray
  */
 function createTray() {
-  tray = new Tray(createTrayIcon());
+  // Create tray with empty image (just text)
+  const emptyImage = nativeImage.createFromBuffer(Buffer.alloc(1), { width: 1, height: 1 });
+  tray = new Tray(emptyImage);
   tray.setTitle('');
   tray.setToolTip('Class Schedule - Click to see current class');
   
