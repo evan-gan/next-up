@@ -6,6 +6,17 @@
 
 const { ipcRenderer } = require('electron');
 
+/**
+ * Converts 24-hour time format (HH:MM) to 12-hour format (H:MM AM/PM)
+ */
+function formatTo12Hour(time24) {
+  const [hours, minutes] = time24.split(':');
+  let hour = parseInt(hours);
+  const period = hour >= 12 ? 'PM' : 'AM';
+  hour = hour % 12 || 12; // Convert 0 to 12 for midnight
+  return `${hour}:${minutes}${period}`;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Load and display today's schedule
   const schedule = await ipcRenderer.invoke('get-schedule');
@@ -22,8 +33,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   let html = '<table class="schedule-table"><thead><tr><th>Block</th><th>Class</th><th>Room</th><th>Teacher</th><th>Time</th></tr></thead><tbody>';
   
   schedule.forEach(cls => {
-    const startTime = cls.startTime.slice(0, 5);
-    const endTime = cls.endTime.slice(0, 5);
+    const startTime = formatTo12Hour(cls.startTime);
+    const endTime = formatTo12Hour(cls.endTime);
     html += `
       <tr>
         <td>${cls.blockName}</td>

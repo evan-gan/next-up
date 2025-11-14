@@ -19,106 +19,177 @@
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         margin: 0;
-        padding: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 0;
+        background: #f5f5f7;
         min-height: 100vh;
-        color: #2d3748;
+        color: #1d1d1f;
+        -webkit-user-select: none;
+        user-select: none;
       }
 
       .container {
-        max-width: 800px;
-        margin: 0 auto;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: #ffffff;
       }
 
       .header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 30px 20px;
-        text-align: center;
+        background: #ffffff;
+        border-bottom: 1px solid #e5e5e7;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        -webkit-app-region: drag;
+      }
+
+      .header-title {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
       }
 
       h1 {
         margin: 0;
-        font-size: 28px;
-        font-weight: 800;
+        font-size: 16px;
+        font-weight: 600;
         letter-spacing: -0.02em;
+        color: #1d1d1f;
       }
 
       .subtitle {
-        margin: 8px 0 0 0;
-        font-size: 14px;
-        opacity: 0.9;
+        margin: 0;
+        font-size: 12px;
+        color: #86868b;
       }
 
       .content {
-        padding: 30px 20px;
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
 
       #scheduleContainer {
-        min-height: 200px;
+        flex: 1;
       }
 
       .schedule-table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 20px;
+        font-size: 13px;
       }
 
       .schedule-table thead {
-        background: #f7fafc;
-        border-bottom: 2px solid #e2e8f0;
+        position: sticky;
+        top: 0;
+        background: #ffffff;
+        border-bottom: 1px solid #e5e5e7;
       }
 
       .schedule-table th {
-        padding: 12px;
+        padding: 8px 12px;
         text-align: left;
-        font-weight: 700;
-        color: #2d3748;
-        font-size: 14px;
+        font-weight: 600;
+        color: #1d1d1f;
+        font-size: 12px;
+        height: 32px;
       }
 
       .schedule-table td {
-        padding: 12px;
-        border-bottom: 1px solid #e2e8f0;
-        font-size: 14px;
+        padding: 8px 12px;
+        border-bottom: 1px solid #f5f5f7;
+        font-size: 13px;
+        height: 32px;
+      }
+
+      .schedule-table tbody tr {
+        transition: background-color 0.15s ease;
       }
 
       .schedule-table tbody tr:hover {
-        background: #f7fafc;
+        background: #f5f5f7;
       }
 
       p {
         text-align: center;
-        color: #718096;
-        font-size: 16px;
-      }
-
-      .info-box {
-        background: #edf2f7;
-        border-left: 4px solid #667eea;
-        padding: 15px;
-        border-radius: 4px;
-        margin-top: 20px;
+        color: #86868b;
         font-size: 13px;
-        color: #2d3748;
+        margin: 20px 0;
       }
 
-      .info-box strong {
+      .info-section {
+        background: #f5f5f7;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 12px;
+        color: #1d1d1f;
+      }
+
+      .info-section strong {
         display: block;
-        margin-bottom: 5px;
-        color: #667eea;
+        margin-bottom: 6px;
+        color: #1d1d1f;
+        font-weight: 600;
+      }
+
+      .info-section p {
+        margin: 0;
+        text-align: left;
+        color: #86868b;
+      }
+
+      /* Scrollbar styling for macOS look */
+      .content::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .content::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .content::-webkit-scrollbar-thumb {
+        background: #d5d5d7;
+        border-radius: 4px;
+      }
+
+      .content::-webkit-scrollbar-thumb:hover {
+        background: #a1a1a6;
+      }
+
+      /* No schedule state */
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 40px 20px;
+        text-align: center;
+      }
+
+      .empty-state-icon {
+        font-size: 48px;
+        opacity: 0.5;
+      }
+
+      .empty-state-text {
+        font-size: 14px;
+        color: #86868b;
+        margin: 0;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <h1>📚 Class Schedule</h1>
-        <p class="subtitle">Today's Schedule - Click tray icon to see current class</p>
+        <div class="header-title">
+          <h1>Class Schedule</h1>
+          <p class="subtitle">Today's Classes</p>
+        </div>
       </div>
 
       <div class="content">
@@ -126,9 +197,9 @@
           <p>Loading schedule...</p>
         </div>
 
-        <div class="info-box">
-          <strong>💡 How it works:</strong>
-          The tray icon (top-right menu bar) displays the time remaining in your current class or the countdown to the next class. Click the icon to see full details of your current class including the teacher, room, and end time.
+        <div class="info-section">
+          <strong>How it works</strong>
+          <p>The tray icon in the menu bar (top-right) displays the time remaining in your current class or a countdown to the next class. Click the icon to see full details including the teacher and room.</p>
         </div>
       </div>
     </div>

@@ -108,6 +108,16 @@ function createContextMenu() {
 
   menuTemplate.push({ type: 'separator' });
   menuTemplate.push({
+    label: 'Open Schedule',
+    type: 'normal',
+    click: () => {
+      if (mainWindow) {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    }
+  });
+  menuTemplate.push({
     label: 'Quit',
     type: 'normal',
     click: () => {
