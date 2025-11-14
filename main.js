@@ -8,35 +8,9 @@ const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } = require('electr
 const path = require('path');
 const ScheduleManager = require('./scheduleManager');
 
-let mainWindow = null;
 let tray = null;
 let scheduleManager = null;
 let updateInterval = null;
-
-/**
- * Creates the main application window (settings/debug window)
- */
-function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 700,
-    show: false,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      preload: path.join(__dirname, 'preload.js'),
-    },
-  });
-  mainWindow.loadFile('index.html');
-  
-  // Hide window when closed instead of quitting app
-  mainWindow.on('close', (event) => {
-    if (!app.isQuiting) {
-      event.preventDefault();
-      mainWindow.hide();
-    }
-  });
-}
 
 /**
  * Updates the tray text display
@@ -154,15 +128,8 @@ function initializeSchedule() {
 
 // App lifecycle handlers
 app.whenReady().then(() => {
-  createWindow();
   initializeSchedule();
   createTray();
-  
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
 });
 
 app.on('window-all-closed', () => {
@@ -183,13 +150,4 @@ app.on('before-quit', () => {
     tray.destroy();
     tray = null;
   }
-});
-
-// IPC handlers for renderer process
-ipcMain.handle('get-current-class', () => {
-  return scheduleManager ? scheduleManager.getCurrentClassDetails() : null;
-});
-
-ipcMain.handle('get-schedule', () => {
-  return scheduleManager ? scheduleManager.getTodaySchedule() : [];
 });
