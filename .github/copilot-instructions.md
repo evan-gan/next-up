@@ -38,24 +38,38 @@ Shows when tray icon is clicked:
 - Quit option
 
 ### Schedule Data Structure
-YAML format with weekly schedule:
+YAML format with weekly schedule. Each class entry uses a template-based description:
 ```yaml
-config:
-  countdownThreshold: 30  # Minutes to show countdown
-  noClassText: ":)"       # Text when no class approaching
-  timeFormat: "12h"       # Display format
-
 schedule:
   Monday:
     - blockName: "A1"
-      className: "Academic Study"
-      level: "FY"
-      room: "2209"
-      teacher:
-        first: "Kristin"
-        last: "Titus"
-      startTime: "09:00"    # 24-hour format
-      endTime: "10:05"      # 24-hour format
+      description: |
+        $Block ($Duration)
+        $StartTime-$EndTime
+        [FY] Academic Study
+        Titus, Kristin - 2209
+      startTime: "9:00 AM"     # 12-hour or 24-hour format
+      endTime: "10:05 AM"      # 12-hour or 24-hour format
+```
+
+**Supported Time Formats**:
+- 12-hour with AM/PM: `"9:00 AM"`, `"1:30 PM"`
+- 24-hour: `"09:00"`, `"13:30"`
+
+**Template Variables** (auto-replaced in description):
+- `$Block` - Block name (e.g., "A1")
+- `$Duration` - Class duration in H:MM format (e.g., "1:05")
+- `$StartTime` - Start time in 12-hour format with AM/PM (e.g., "9:00 AM")
+- `$EndTime` - End time in 12-hour format with AM/PM (e.g., "10:05 AM")
+
+Each line in the description is rendered as a separate menu item in the dropdown.
+
+**Example rendering** for the above:
+```
+A1 (1:05)
+9:00 AM-10:05 AM
+[FY] Academic Study
+Titus, Kristin - 2209
 ```
 
 ## Configuration
@@ -67,15 +81,23 @@ Edit `schedule.yaml` `config.countdownThreshold` to change when countdown appear
 Edit `schedule.yaml` `config.noClassText` to change the idle display (default: `:)`).
 
 ### Schedule Updates
-Edit `schedule.yaml` under each day (Monday-Friday) to add/modify classes. Times must be in 24-hour HH:MM format.
+Edit `schedule.yaml` under each day (Monday-Friday) to add/modify classes. Use the template format with description:
+1. Follow YAML indentation precisely
+2. Use 12-hour format (e.g., "9:00 AM", "1:30 PM") or 24-hour format (e.g., "09:00", "13:30") for times
+3. Write the description using the template variables ($Block, $Duration, $StartTime, $EndTime) plus static text
+4. Each line becomes a separate menu item
+5. App reads schedule on startup (restart needed for changes)
 
 ## Development Notes
 
 ### Adding/Modifying Classes
-1. Edit `schedule.yaml`
-2. Follow YAML indentation precisely
-3. Use 24-hour time format
-4. App reads schedule on startup (restart needed for changes)
+1. Edit `schedule.yaml` to add/modify a class entry
+2. Provide `blockName`, `description`, `startTime`, and `endTime`
+3. In description, use `$Block`, `$Duration`, `$StartTime`, and `$EndTime` as template variables
+4. Add static text for class details on separate lines (each line becomes a menu item)
+5. Follow YAML indentation precisely
+6. Use 12-hour format (e.g., "9:00 AM", "1:30 PM") or 24-hour format (e.g., "09:00", "13:30") for times
+7. Restart the app for changes to take effect
 
 ### Time Calculations
 - `ScheduleManager.getDisplayTime()` - Main method for tray display logic

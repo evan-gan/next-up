@@ -34,12 +34,45 @@ class ScheduleManager {
   }
 
   /**
+   * Converts time string to 24-hour format if in 12-hour format
+   * Accepts formats: "9:00 AM", "1:30 PM", "09:00", "13:30"
+   * @param {string} timeStr - Time string in 12-hour or 24-hour format
+   * @returns {string} Time in 24-hour format "HH:MM"
+   */
+  normalizeTo24Hour(timeStr) {
+    const trimmed = timeStr.trim();
+    
+    // Check if it's 12-hour format (contains AM/PM)
+    if (/am|pm/i.test(trimmed)) {
+      const match = trimmed.match(/(\d{1,2}):(\d{2})\s*(am|pm)/i);
+      if (!match) throw new Error(`Invalid 12-hour time format: ${timeStr}`);
+      
+      let hours = parseInt(match[1], 10);
+      const minutes = match[2];
+      const period = match[3].toLowerCase();
+      
+      // Convert to 24-hour
+      if (period === 'pm' && hours !== 12) {
+        hours += 12;
+      } else if (period === 'am' && hours === 12) {
+        hours = 0;
+      }
+      
+      return `${String(hours).padStart(2, '0')}:${minutes}`;
+    }
+    
+    // Already in 24-hour format or just needs validation
+    return trimmed;
+  }
+
+  /**
    * Converts 24-hour time string (HH:MM) to minutes since midnight
-   * @param {string} timeStr - Time in format "HH:MM"
+   * @param {string} timeStr - Time in format "HH:MM" or "H:MM AM/PM"
    * @returns {number} Minutes since midnight
    */
   timeToMinutes(timeStr) {
-    const [hours, minutes] = timeStr.split(':').map(Number);
+    const normalized = this.normalizeTo24Hour(timeStr);
+    const [hours, minutes] = normalized.split(':').map(Number);
     return hours * 60 + minutes;
   }
 
@@ -206,6 +239,32 @@ class ScheduleManager {
   }
 
   /**
+   * Renders a description template by replacing $Block, $Duration, $StartTime, and $EndTime
+   * with actual values. Splits the result by newlines for menu display.
+   * @param {string} template - Template string with variables
+   * @param {Object} classObj - Class object with data to substitute
+   * @returns {Array<string>} Array of description lines
+   */
+  renderDescriptionTemplate(template, classObj) {
+    const startMinutes = this.timeToMinutes(classObj.startTime);
+    const endMinutes = this.timeToMinutes(classObj.endTime);
+    const duration = endMinutes - startMinutes;
+    const hours = Math.floor(duration / 60);
+    const minutes = duration % 60;
+    const durationStr = hours > 0 ? `${hours}:${String(minutes).padStart(2, '0')}` : `${minutes}`;
+
+    // Replace only the 4 variables: Block, Duration, StartTime, EndTime
+    let rendered = template
+      .replace(/\$Block/g, classObj.blockName)
+      .replace(/\$Duration/g, durationStr)
+      .replace(/\$StartTime/g, this.formatTo12Hour(classObj.startTime))
+      .replace(/\$EndTime/g, this.formatTo12Hour(classObj.endTime));
+
+    // Split by newlines and filter out empty lines
+    return rendered.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+  }
+
+  /**
    * Gets full details of the current class (for dropdown display)
    * @param {Date} dateTime - Current date/time (defaults to now)
    * @returns {Object|null} Formatted class details or null if no current class
@@ -214,22 +273,12 @@ class ScheduleManager {
     const currentClass = this.getCurrentClass(dateTime);
     if (!currentClass) return null;
 
-    const startMinutes = this.timeToMinutes(currentClass.startTime);
-    const endMinutes = this.timeToMinutes(currentClass.endTime);
-    const duration = endMinutes - startMinutes;
-
     return {
       blockName: currentClass.blockName,
-      className: currentClass.className,
-      year: currentClass.year,
-      room: currentClass.room,
+      description: currentClass.description,
+      descriptionLines: this.renderDescriptionTemplate(currentClass.description, currentClass),
       startTime: currentClass.startTime,
       endTime: currentClass.endTime,
-      duration: duration,
-      teacher: {
-        first: currentClass.teacher.first,
-        last: currentClass.teacher.last
-      },
       timeRemaining: this.getTimeRemainingInClass(dateTime)
     };
   }

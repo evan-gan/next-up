@@ -50,6 +50,7 @@ function updateTrayDisplay() {
 
 /**
  * Creates the context menu for tray with current class details
+ * Each line of the description template is rendered as a menu item
  * @returns {Menu} Menu with class information
  */
 function createContextMenu() {
@@ -58,46 +59,15 @@ function createContextMenu() {
   const menuTemplate = [];
 
   if (classDetails) {
-    // Format duration as H:MM
-    const hours = Math.floor(classDetails.duration / 60);
-    const minutes = classDetails.duration % 60;
-    const durationStr = hours > 0 ? `${hours}:${String(minutes).padStart(2, '0')}` : `${minutes}`;
-    
-    // Format: A1 (1:05)
-    const blockDuration = `${classDetails.blockName} (${durationStr})`;
-    menuTemplate.push({
-      label: blockDuration,
-      type: 'normal',
-      enabled: true
-    });
-    
-    // Convert times to 12-hour format with AM/PM
-    const startTime12 = scheduleManager.formatTo12Hour(classDetails.startTime);
-    const endTime12 = scheduleManager.formatTo12Hour(classDetails.endTime);
-    
-    // Format: 11:40 AM-1:30 PM
-    const timeRange = `${startTime12}-${endTime12}`;
-    menuTemplate.push({
-      label: timeRange,
-      type: 'normal',
-      enabled: true
-    });
-    
-    // Format: [FY] Academic Study
-    const classLine = `[${classDetails.year}] ${classDetails.className}`;
-    menuTemplate.push({
-      label: classLine,
-      type: 'normal',
-      enabled: true
-    });
-    
-    // Format: Titus, Kristin - 2209
-    const teacherRoom = `${classDetails.teacher.last}, ${classDetails.teacher.first} - ${classDetails.room}`;
-    menuTemplate.push({
-      label: teacherRoom,
-      type: 'normal',
-      enabled: true
-    });
+    // Render each line of the description as a separate menu item
+    const descriptionLines = classDetails.descriptionLines || [];
+    for (const line of descriptionLines) {
+      menuTemplate.push({
+        label: line,
+        type: 'normal',
+        enabled: true
+      });
+    }
   } else {
     menuTemplate.push({
       label: 'No Class',
