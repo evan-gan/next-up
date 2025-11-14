@@ -175,7 +175,7 @@ class ScheduleManager {
     
     // If in a class, show time remaining in that class
     if (currentClass) {
-      return this.getTimeRemainingInClass(dateTime);
+      return "Done In: " + this.getTimeRemainingInClass(dateTime);
     }
 
     // Check time until next class
@@ -183,7 +183,7 @@ class ScheduleManager {
     if (timeUntilNext) {
       const minutesUntilNext = this.getMinutesUntilNextClass(dateTime);
       if (minutesUntilNext <= this.config.countdownThreshold) {
-        return timeUntilNext;
+        return "Next In: " + timeUntilNext;
       }
     }
 
