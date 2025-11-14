@@ -286,6 +286,24 @@ class ScheduleManager {
       timeRemaining: this.getTimeRemainingInClass(dateTime)
     };
   }
+
+  /**
+   * Gets full details of the next class (for between-class display)
+   * @param {Date} dateTime - Current date/time (defaults to now)
+   * @returns {Object|null} Formatted class details or null if no next class
+   */
+  getNextClassDetails(dateTime = new Date()) {
+    const nextClass = this.getNextClass(dateTime);
+    if (!nextClass) return null;
+
+    return {
+      blockName: nextClass.blockName,
+      description: nextClass.description,
+      descriptionLines: this.renderDescriptionTemplate(nextClass.description, nextClass),
+      startTime: nextClass.startTime,
+      endTime: nextClass.endTime
+    };
+  }
 }
 
 module.exports = ScheduleManager;

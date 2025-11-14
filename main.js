@@ -51,6 +51,7 @@ function updateTrayDisplay() {
 /**
  * Creates the context menu for tray with current class details
  * Each line of the description template is rendered as a menu item
+ * When between classes, shows next class with "Next Up:" header
  * @returns {Menu} Menu with class information
  */
 function createContextMenu() {
@@ -69,24 +70,36 @@ function createContextMenu() {
       });
     }
   } else {
-    menuTemplate.push({
-      label: 'No Class',
-      type: 'normal',
-      enabled: true
-    });
+    // No current class, check for next class
+    const nextClassDetails = scheduleManager.getNextClassDetails();
+    
+    if (nextClassDetails) {
+      // Show "Next Up:" header
+      menuTemplate.push({
+        label: 'Next Up:',
+        type: 'normal',
+        enabled: false
+      });
+      
+      // Render each line of the next class description
+      const descriptionLines = nextClassDetails.descriptionLines || [];
+      for (const line of descriptionLines) {
+        menuTemplate.push({
+          label: line,
+          type: 'normal',
+          enabled: true
+        });
+      }
+    } else {
+      menuTemplate.push({
+        label: 'No Class',
+        type: 'normal',
+        enabled: true
+      });
+    }
   }
 
   menuTemplate.push({ type: 'separator' });
-  menuTemplate.push({
-    label: 'Open Schedule',
-    type: 'normal',
-    click: () => {
-      if (mainWindow) {
-        mainWindow.show();
-        mainWindow.focus();
-      }
-    }
-  });
   menuTemplate.push({
     label: 'Quit',
     type: 'normal',

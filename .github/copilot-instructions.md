@@ -30,12 +30,10 @@ The following files have been cleaned up and replaced with removal markers (kept
 
 ### Context Menu
 Shows when tray icon is clicked:
-- Block name (e.g., "A1", "B2")
-- Class name & level
-- Room number
-- Teacher (last, first)
-- End time (12-hour format with AM/PM)
-- Quit option
+- **When in a class**: Block name, class name & level, room number, teacher (last, first), end time (12-hour format with AM/PM)
+- **Between classes**: "Next Up:" header followed by the next class details (same format as above)
+- **When no class upcoming**: "No Class" message
+- Menu options to open the full schedule or quit the app
 
 ### Schedule Data Structure
 YAML format with weekly schedule. Each class entry uses a template-based description:

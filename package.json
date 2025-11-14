@@ -1,7 +1,7 @@
 {
-  "name": "classes",
+  "name": "next-up",
   "version": "1.0.0",
-  "description": "School schedule with class time countdown in menu bar",
+  "description": "Countdown to next up on your schedule",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
