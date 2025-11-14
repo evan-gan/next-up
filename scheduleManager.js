@@ -253,12 +253,16 @@ class ScheduleManager {
     const minutes = duration % 60;
     const durationStr = hours > 0 ? `${hours}:${String(minutes).padStart(2, '0')}` : `${minutes}`;
 
+    // Normalize times to 24-hour format first, then convert to 12-hour for display
+    const startTime24 = this.normalizeTo24Hour(classObj.startTime);
+    const endTime24 = this.normalizeTo24Hour(classObj.endTime);
+
     // Replace only the 4 variables: Block, Duration, StartTime, EndTime
     let rendered = template
       .replace(/\$Block/g, classObj.blockName)
       .replace(/\$Duration/g, durationStr)
-      .replace(/\$StartTime/g, this.formatTo12Hour(classObj.startTime))
-      .replace(/\$EndTime/g, this.formatTo12Hour(classObj.endTime));
+      .replace(/\$StartTime/g, this.formatTo12Hour(startTime24))
+      .replace(/\$EndTime/g, this.formatTo12Hour(endTime24));
 
     // Split by newlines and filter out empty lines
     return rendered.split('\n').map(line => line.trim()).filter(line => line.length > 0);
