@@ -17,11 +17,24 @@ class ScheduleManager {
 
   /**
    * Loads the schedule and config from schedule.yaml file
+   * Looks in assets/ folder, handling both development and packaged app paths
    * @throws {Error} If schedule file cannot be loaded or parsed
    */
   loadSchedule() {
     try {
-      const scheduleFile = path.join(__dirname, 'schedule.yaml');
+      // In development: __dirname is src/, so go up one level to assets/
+      // In production (packaged app): __dirname is Resources/app/src/, so go up two levels to find assets/
+      let scheduleFile = path.join(__dirname, '../assets/schedule.yaml');
+      
+      // Check if file exists; if not, try alternative path for packaged app
+      if (!fs.existsSync(scheduleFile)) {
+        scheduleFile = path.join(__dirname, '../../assets/schedule.yaml');
+      }
+      
+      if (!fs.existsSync(scheduleFile)) {
+        throw new Error(`Schedule file not found at ${scheduleFile}`);
+      }
+      
       const fileContent = fs.readFileSync(scheduleFile, 'utf8');
       const data = YAML.parse(fileContent);
       
