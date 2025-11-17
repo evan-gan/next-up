@@ -73,3 +73,6 @@ config:
 - `src/scheduleManager.js` - Schedule parsing & time calculations
 - `src/renderer.js` - Settings window
 - `assets/schedule.yaml` - Your schedule config
+
+# Bugs
+Found a bug? Please open an issue with details! _(how to reproduce, screenshots, etc.)_
