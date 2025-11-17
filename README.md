@@ -47,7 +47,7 @@ schedule:
       endTime: "10:05 AM"
 ```
 
-3. Restart the app for changes to take effect
+3. Build the app _(`pnpm build`)_ for changes to take effect & install. (look for the `.dmg` in `dist/`)
 
 > **Tip:** Paste your schedule and the example format into your favorite LLM to generate the YAML file if you want to save time.
 
