@@ -260,6 +260,23 @@ class ScheduleManager {
   }
 
   /**
+   * Calculates minutes from the end of current class to the start of next class
+   * @param {Date} dateTime - Current date/time (defaults to now)
+   * @returns {number|null} Minutes from end of current class to start of next class, or null if no current or next class
+   */
+  getMinutesFromEndOfCurrentClassToNextClass(dateTime = new Date()) {
+    const currentClass = this.getCurrentClass(dateTime);
+    const nextClass = this.getNextClass(dateTime);
+    
+    if (!currentClass || !nextClass) return null;
+
+    const endMinutes = this.timeToMinutes(currentClass.endTime);
+    const nextStartMinutes = this.timeToMinutes(nextClass.startTime);
+    
+    return nextStartMinutes - endMinutes;
+  }
+
+  /**
    * Calculates minutes until next class starts
    * @param {Date} dateTime - Current date/time (defaults to now)
    * @returns {number|null} Minutes until next class, or null if no upcoming class

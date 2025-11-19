@@ -79,6 +79,7 @@ function updateTrayDisplay() {
  * Creates the context menu for tray with current class details
  * Each line of the description template is rendered as a menu item
  * When between classes, shows next class with "Next Up:" header
+ * If in a class and next class is within threshold, shows it in a submenu
  * Includes "Modify Schedule" option and "Quit"
  * @returns {Menu} Menu with class information
  */
@@ -96,6 +97,33 @@ function createContextMenu() {
         type: 'normal',
         enabled: true
       });
+    }
+
+    // Check if next class is within threshold relative to the END of current class
+    const minutesUntilNextFromEndOfClass = scheduleManager.getMinutesFromEndOfCurrentClassToNextClass();
+    if (minutesUntilNextFromEndOfClass !== null && minutesUntilNextFromEndOfClass <= scheduleManager.config.countdownThreshold) {
+      const nextClassDetails = scheduleManager.getNextClassDetails();
+      
+      if (nextClassDetails) {
+        menuTemplate.push({ type: 'separator' });
+        
+        // Create submenu for next block with description lines
+        const nextBlockSubmenu = [];
+        const nextDescriptionLines = nextClassDetails.descriptionLines || [];
+        for (const line of nextDescriptionLines) {
+          nextBlockSubmenu.push({
+            label: line,
+            type: 'normal',
+            enabled: true
+          });
+        }
+
+        menuTemplate.push({
+          label: `On Deck: ${nextClassDetails.blockName} ${nextClassDetails}`,
+          type: 'submenu',
+          submenu: nextBlockSubmenu
+        });
+      }
     }
   } else {
     // No current class, check for next class

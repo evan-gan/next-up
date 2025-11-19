@@ -51,6 +51,7 @@ The bundled default schedule (assets/schedule.yaml as fallback) has been removed
 ### Context Menu
 Shows when tray icon is clicked:
 - **When in a class**: Block name, class name & level, room number, teacher (last, first), end time (12-hour format with AM/PM)
+  - If next class is within countdown threshold: Shows "Next Block: [BlockName]" submenu with full next class details (hover to expand)
 - **Between classes**: "Next Up:" header followed by the next class details (same format as above)
 - **When no class upcoming**: "No Class" message
 - **Modify Schedule** option to update/replace the schedule file
