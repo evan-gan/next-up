@@ -23,17 +23,14 @@ pnpm build
 
 ## Configure Your Schedule
 
-1. Copy the example schedule:
-```bash
-cp assets/schedule.example.yaml assets/schedule.yaml
-```
-
-2. Edit `assets/schedule.yaml` with your classes:
+1. Edit `schedule.example.yaml` with your classes:
    - Add classes for each day (Monday-Friday)
    - Use 12-hour format (`9:00 AM`) or 24-hour format (`09:00`) for times
    - Use template variables in descriptions: `$Block`, `$Duration`, `$StartTime`, `$EndTime`
 
-**Example:**
+<details>
+<summary><strong>Example</strong></summary>
+
 ```yaml
 schedule:
   Monday:
@@ -47,7 +44,9 @@ schedule:
       endTime: "10:05 AM"
 ```
 
-3. Build the app _(`pnpm build`)_ for changes to take effect & install. (look for the `.dmg` in `dist/`)
+</details>
+
+2. Build the app _(`pnpm build`)_, install, & follow instructions. (look for the `.dmg` in `dist/`)
 
 > **Tip:** Paste your schedule and the example format into your favorite LLM to generate the YAML file if you want to save time.
 
@@ -66,6 +65,7 @@ config:
 - **Menu Details**: Click the tray icon to see full class info (teacher, room, time)
 - **Smart Display**: Shows `:)` when no class is within threshold
 - **Real-time Updates**: Updates every second
+- **Display Next Class**: If next class is within threshold after current class ends, shows "On Deck" submenu with details
 
 ## Project Structure
 
@@ -73,6 +73,8 @@ config:
 - `src/scheduleManager.js` - Schedule parsing & time calculations
 - `src/renderer.js` - Settings window
 - `assets/schedule.yaml` - Your schedule config
+- `preload.js` - Electron preload script
+- `scheduleFileManager.js` - Schedule file & folder management
 
 # Bugs
 Found a bug? Please open an issue with details! _(how to reproduce, screenshots, etc.)_
