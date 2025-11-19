@@ -2,48 +2,70 @@
  * Schedule Manager Module
  * Handles loading and querying school schedule data from YAML configuration.
  * Provides methods to find current/next classes and calculate time remaining.
+ * Loads from user's schedule folder, falling back to bundled default if needed.
  */
 
 const fs = require('fs');
 const path = require('path');
 const YAML = require('yaml');
+const ScheduleFileManager = require('./scheduleFileManager');
 
 class ScheduleManager {
   constructor() {
     this.schedule = null;
     this.config = null;
+    this.fileManager = new ScheduleFileManager();
     this.loadSchedule();
   }
 
   /**
-   * Loads the schedule and config from schedule.yaml file
-   * Looks in assets/ folder, handling both development and packaged app paths
-   * @throws {Error} If schedule file cannot be loaded or parsed
+   * Loads the schedule and config from user's schedule folder
+   * Only loads from user-provided files, no fallback to bundled default
+   * @throws {Error} If schedule file cannot be loaded
    */
   loadSchedule() {
     try {
-      // In development: __dirname is src/, so go up one level to assets/
-      // In production (packaged app): __dirname is Resources/app/src/, so go up two levels to find assets/
-      let scheduleFile = path.join(__dirname, '../assets/schedule.yaml');
+      // Load from user's schedule folder
+      this.fileManager.ensureScheduleFolderExists();
+      const userScheduleFile = this.fileManager.getMostRecentScheduleFile();
       
-      // Check if file exists; if not, try alternative path for packaged app
-      if (!fs.existsSync(scheduleFile)) {
-        scheduleFile = path.join(__dirname, '../../assets/schedule.yaml');
+      if (!userScheduleFile) {
+        throw new Error('No schedule file found in user folder');
       }
       
-      if (!fs.existsSync(scheduleFile)) {
-        throw new Error(`Schedule file not found at ${scheduleFile}`);
-      }
+      console.log('Loaded schedule from user folder:', userScheduleFile);
       
-      const fileContent = fs.readFileSync(scheduleFile, 'utf8');
+      const fileContent = fs.readFileSync(userScheduleFile, 'utf8');
       const data = YAML.parse(fileContent);
+      
+      // Validate parsed data has required structure
+      if (!data || typeof data !== 'object') {
+        throw new Error('Invalid schedule format: expected object');
+      }
+      if (!data.schedule || typeof data.schedule !== 'object') {
+        throw new Error('Invalid schedule format: missing or invalid schedule property');
+      }
+      if (!data.config || typeof data.config !== 'object') {
+        throw new Error('Invalid schedule format: missing or invalid config property');
+      }
       
       this.config = data.config;
       this.schedule = data.schedule;
+      
+      // Set defaults for missing config values
+      this.config.countdownThreshold ??= 30;
+      this.config.noClassText ??= ':)';
     } catch (error) {
       console.error('Error loading schedule:', error);
       throw new Error(`Failed to load schedule: ${error.message}`);
     }
+  }
+
+  /**
+   * Reloads the schedule from disk (used when user updates their schedule file)
+   */
+  reloadSchedule() {
+    this.loadSchedule();
   }
 
   /**
@@ -277,8 +299,10 @@ class ScheduleManager {
       .replace(/\$StartTime/g, this.formatTo12Hour(startTime24))
       .replace(/\$EndTime/g, this.formatTo12Hour(endTime24));
 
-    // Split by newlines and filter out empty lines
-    return rendered.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    // Split by newlines, trim each line, and filter empty lines
+    const lines = rendered.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    // Ensure result is always an array, even if empty
+    return Array.isArray(lines) ? lines : [];
   }
 
   /**
@@ -290,10 +314,13 @@ class ScheduleManager {
     const currentClass = this.getCurrentClass(dateTime);
     if (!currentClass) return null;
 
+    // Safely render description with null checks
+    const descriptionLines = this.renderDescriptionTemplate(currentClass.description || '', currentClass);
+
     return {
-      blockName: currentClass.blockName,
-      description: currentClass.description,
-      descriptionLines: this.renderDescriptionTemplate(currentClass.description, currentClass),
+      blockName: currentClass.blockName || 'Unknown',
+      description: currentClass.description || '',
+      descriptionLines: descriptionLines || [],
       startTime: currentClass.startTime,
       endTime: currentClass.endTime,
       timeRemaining: this.getTimeRemainingInClass(dateTime)
@@ -309,10 +336,13 @@ class ScheduleManager {
     const nextClass = this.getNextClass(dateTime);
     if (!nextClass) return null;
 
+    // Safely render description with null checks
+    const descriptionLines = this.renderDescriptionTemplate(nextClass.description || '', nextClass);
+
     return {
-      blockName: nextClass.blockName,
-      description: nextClass.description,
-      descriptionLines: this.renderDescriptionTemplate(nextClass.description, nextClass),
+      blockName: nextClass.blockName || 'Unknown',
+      description: nextClass.description || '',
+      descriptionLines: descriptionLines || [],
       startTime: nextClass.startTime,
       endTime: nextClass.endTime
     };

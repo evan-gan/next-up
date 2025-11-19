@@ -4,13 +4,66 @@
  * Shows current class details when user clicks tray icon
  */
 
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, dialog } = require('electron');
 const path = require('path');
 const ScheduleManager = require('./scheduleManager');
+const ScheduleFileManager = require('./scheduleFileManager');
 
 let tray = null;
 let scheduleManager = null;
 let updateInterval = null;
+let fileManager = null;
+
+/**
+ * Shows the initial setup dialog with system notification
+ * User is prompted to drag/drop schedule.yaml into the folder that opens
+ * Brings the dialog to front of screen with modal configuration
+ */
+function showInitialSetupDialog() {
+  // Ensure app window is visible and focused
+  if (app.dock) {
+    app.dock.show();
+  }
+  
+  // Use setImmediate to ensure app is ready before showing dialog
+  setImmediate(() => {
+    app.focus();
+    
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Next Up - Setup',
+      message: 'Drag and drop your schedule.yaml file into the folder that will open next.',
+      detail: 'This folder will persist across reinstalls, so you can easily update your schedule later.',
+      buttons: ['OK']
+    }).then(() => {
+      // After dismissing dialog, open the folder
+      fileManager.openScheduleFolder();
+    });
+  });
+}
+
+/**
+ * Shows the modify schedule dialog
+ * User can replace their schedule file in the opened folder
+ */
+function showModifyScheduleDialog() {
+  // Bring app to focus so the dialog appears prominently
+  if (app.dock) {
+    app.dock.show();
+  }
+  app.focus();
+  
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Next Up - Modify Schedule',
+    message: 'Drag and drop your schedule.yaml file into the folder that will open next.',
+    detail: 'The most recently updated YAML file will be used as your schedule.',
+    buttons: ['OK']
+  }).then(() => {
+    // Open folder - watching already active from startup
+    fileManager.openScheduleFolder();
+  });
+}
 
 /**
  * Updates the tray text display
@@ -26,6 +79,7 @@ function updateTrayDisplay() {
  * Creates the context menu for tray with current class details
  * Each line of the description template is rendered as a menu item
  * When between classes, shows next class with "Next Up:" header
+ * Includes "Modify Schedule" option and "Quit"
  * @returns {Menu} Menu with class information
  */
 function createContextMenu() {
@@ -75,6 +129,13 @@ function createContextMenu() {
 
   menuTemplate.push({ type: 'separator' });
   menuTemplate.push({
+    label: 'Modify Schedule',
+    type: 'normal',
+    click: () => {
+      showModifyScheduleDialog();
+    }
+  });
+  menuTemplate.push({
     label: 'Quit',
     type: 'normal',
     click: () => {
@@ -109,16 +170,65 @@ function createTray() {
 
 /**
  * Initializes the schedule manager and starts the update loop
+ * Shows setup dialog if no user schedule file exists
+ * Sets up continuous file watching for schedule updates
+ * If no schedule, still displays idle text in tray and watches for new files
  */
 function initializeSchedule() {
   try {
+    // Check if schedule file exists before trying to load
+    const hasUserSchedule = fileManager.hasScheduleFile();
+    if (!hasUserSchedule) {
+      console.log('No schedule file found - showing setup dialog');
+      
+      // Watch for new schedule files to be added
+      fileManager.watchScheduleFolder(() => {
+        console.log('Schedule file detected, attempting to load...');
+        if (fileManager.hasScheduleFile()) {
+          try {
+            // Initialize schedule manager now that file exists
+            scheduleManager = new ScheduleManager();
+            console.log('Schedule loaded successfully');
+            
+            // Start the update loop
+            updateTrayDisplay();
+            if (updateInterval) clearInterval(updateInterval);
+            updateInterval = setInterval(updateTrayDisplay, 1000);
+          } catch (error) {
+            console.error('Error loading newly added schedule:', error);
+          }
+        }
+      });
+      
+      // Show setup dialog
+      showInitialSetupDialog();
+      return; // Don't initialize schedule manager yet
+    }
+    
     scheduleManager = new ScheduleManager();
     console.log('Schedule loaded successfully');
+    
+    // Start continuous watching of schedule folder for file changes
+    // Watcher stays active for the lifetime of the app
+    fileManager.watchScheduleFolder(() => {
+      try {
+        console.log('Schedule file changed, reloading...');
+        scheduleManager.reloadSchedule();
+        updateTrayDisplay();
+      } catch (error) {
+        console.error('Error reloading schedule:', error);
+        // If schedule was deleted, show setup dialog again
+        if (error.message && error.message.includes('No schedule file found')) {
+          console.log('Schedule file was deleted - showing setup dialog');
+          showInitialSetupDialog();
+        }
+      }
+    });
     
     // Initial update
     updateTrayDisplay();
     
-    // Update every second for accurate seconds display
+    // Update every second for accurate countdown display
     if (updateInterval) clearInterval(updateInterval);
     updateInterval = setInterval(updateTrayDisplay, 1000);
   } catch (error) {
@@ -128,6 +238,7 @@ function initializeSchedule() {
 
 // App lifecycle handlers
 app.whenReady().then(() => {
+  fileManager = new ScheduleFileManager();
   initializeSchedule();
   createTray();
 });
@@ -138,6 +249,11 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   app.isQuiting = true;
+  
+  // Clean up file watcher
+  if (fileManager) {
+    fileManager.stopWatchingScheduleFolder();
+  }
   
   // Clean up update interval
   if (updateInterval) {
