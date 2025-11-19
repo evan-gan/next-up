@@ -1,6 +1,6 @@
-# Class Schedule Reminder
+# Schedule Reminder
 
-A macOS menu bar app that displays your school schedule with live countdown to your current or next class.
+A macOS menu bar app that displays your schedule with live countdown to your current or next block.
 
 ## Quick Start
 
