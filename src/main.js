@@ -17,10 +17,10 @@ let fileManager = null;
 /**
  * Shows the initial setup dialog with system notification
  * User is prompted to drag/drop schedule.yaml into the folder that opens
- * Brings the dialog to front of screen with modal configuration
+ * Temporarily shows dock icon while dialog is visible, then hides it again
  */
 function showInitialSetupDialog() {
-  // Ensure app window is visible and focused
+  // Temporarily show dock icon for the dialog
   if (app.dock) {
     app.dock.show();
   }
@@ -38,6 +38,10 @@ function showInitialSetupDialog() {
     }).then(() => {
       // After dismissing dialog, open the folder
       fileManager.openScheduleFolder();
+      // Hide dock icon again after dialog is done
+      if (app.dock) {
+        app.dock.hide();
+      }
     });
   });
 }
@@ -45,9 +49,10 @@ function showInitialSetupDialog() {
 /**
  * Shows the modify schedule dialog
  * User can replace their schedule file in the opened folder
+ * Temporarily shows dock icon while dialog is visible, then hides it again
  */
 function showModifyScheduleDialog() {
-  // Bring app to focus so the dialog appears prominently
+  // Temporarily show dock icon for the dialog
   if (app.dock) {
     app.dock.show();
   }
@@ -62,6 +67,10 @@ function showModifyScheduleDialog() {
   }).then(() => {
     // Open folder - watching already active from startup
     fileManager.openScheduleFolder();
+    // Hide dock icon again after dialog is done
+    if (app.dock) {
+      app.dock.hide();
+    }
   });
 }
 
@@ -267,6 +276,10 @@ function initializeSchedule() {
 // App lifecycle handlers
 app.whenReady().then(() => {
   fileManager = new ScheduleFileManager();
+  // Hide the dock icon only if schedule file already exists
+  if (app.dock && fileManager.hasScheduleFile()) {
+    app.dock.hide();
+  }
   initializeSchedule();
   createTray();
 });
