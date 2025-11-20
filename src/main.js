@@ -119,7 +119,7 @@ function createContextMenu() {
         }
 
         menuTemplate.push({
-          label: `On Deck: ${nextClassDetails.blockName} ${nextClassDetails}`,
+          label: `On Deck: ${nextClassDetails.blockName}`,
           type: 'submenu',
           submenu: nextBlockSubmenu
         });
