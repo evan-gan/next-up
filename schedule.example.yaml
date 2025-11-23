@@ -1,13 +1,5 @@
 # School Schedule Configuration - Example
-#
-# HOW TO CREATE YOUR SCHEDULE:
-# 1. Copy this file to schedule.yaml `cp /assets/schedule.example.yaml /assets/schedule.yaml`
-# 2. For each class, add blockName, startTime, endTime, and a description
-# 3. In the description, you can template variables: $Block, $Duration, $StartTime, $EndTime
-# 4. Each line in the description becomes a separate menu item (aka will show in same format)
-# 5. Build the app and use it!
-#
-# Time format: 12-hour (e.g., "9:00 AM", "1:30 PM") or 24-hour (e.g., "09:00", "13:30")
+# See readme for tips on how to auto generate your own schedule in this format.
 
 config:
   # Minutes threshold to show countdown to next class (if under this, show countdown)

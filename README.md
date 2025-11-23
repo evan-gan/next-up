@@ -21,12 +21,14 @@ pnpm start
 pnpm build
 ```
 
-## Configure Your Schedule
+## How install & use the app
+1. Install by running `git clone https://github.com/evan-gan/next-up.git && cd next-up && pnpm quickstart`
 
-1. Edit `schedule.example.yaml` with your classes:
+2. Copy `schedule.example.yaml` and update it with your classes:
    - Add classes for each day (Monday-Friday)
    - Use 12-hour format (`9:00 AM`) or 24-hour format (`09:00`) for times
    - Use template variables in descriptions: `$Block`, `$Duration`, `$StartTime`, `$EndTime`
+   - > **Tip:** Paste your schedule and the example format into your favorite LLM to generate the YAML file if you want to save time.
 
 <details>
 <summary><strong>Example</strong></summary>
@@ -45,19 +47,12 @@ schedule:
 ```
 
 </details>
+<details>
+<summary><strong>Manual install instructions</strong></summary>
 
-2. Build the app _(`pnpm build`)_, install, & follow instructions. (look for the `.dmg` in `dist/`)
+Build the app (`pnpm build`), install, & follow instructions. (look for the `.dmg` in `dist/`)_
 
-> **Tip:** Paste your schedule and the example format into your favorite LLM to generate the YAML file if you want to save time.
-
-### Customize Settings
-
-Edit `config` section in `assets/schedule.yaml`:
-```yaml
-config:
-  countdownThreshold: 30  # Show countdown to next class (minutes)
-  noClassText: ":)"       # Display when no class is nearby
-```
+</details>
 
 ## App Features
 

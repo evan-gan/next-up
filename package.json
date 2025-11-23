@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "build": "electron-builder --mac",
-    "build-all": "electron-builder --mac --publish never"
+    "build-all": "electron-builder --mac --publish never",
+    "quickstart": "pnpm install && pnpm build && node scripts/install-app.js"
   },
   "author": "Evan Gan",
   "license": "ISC",
